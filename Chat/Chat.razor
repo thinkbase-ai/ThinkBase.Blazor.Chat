@@ -1,0 +1,71 @@
+﻿@using System.ComponentModel
+@using Microsoft.Extensions.AI
+@inject IChatClient ChatClient
+@inject NavigationManager Nav
+@implements IDisposable
+<div style="width: 100%">
+
+    <ChatHeader OnNewChat="@ResetConversationAsync" />
+    <CascadingValue Value="@this">
+        <ChatMessageList Messages="@messages" InProgressMessage="@currentResponseMessage">
+            <NoMessagesContent>
+                <div>@initialText</div>
+            </NoMessagesContent>
+        </ChatMessageList>
+    </CascadingValue>
+</div>
+
+<div class="chat-container">
+    <ChatInput OnSend="@AddUserMessageAsync" @ref="@chatInput" />
+</div>
+
+@code {
+    [Parameter]
+    public string? initialText { get; set; } = "Hello";
+    private readonly ChatOptions chatOptions = new();
+    private readonly List<ChatMessage> messages = new();
+    private CancellationTokenSource? currentResponseCancellation;
+    private ChatMessage? currentResponseMessage = null;
+    private ChatInput? chatInput;
+    private string? currentId;
+
+    override protected async Task OnInitializedAsync()
+    {
+        currentId = Guid.NewGuid().ToString();
+        chatOptions.ChatThreadId = currentId;
+        // Kick off the conversation with the initial text
+        var resp = await ChatClient.GetResponseAsync(new List<ChatMessage>(), chatOptions);
+        messages.AddMessages(resp);
+    }
+
+    public async Task AddUserMessageAsync(ChatMessage userMessage)
+    {
+
+        // Add the user message to the conversation
+        messages.Add(userMessage);
+        await chatInput!.FocusAsync();
+
+        // Display a new response from the IChatClient
+        var responseText = new TextContent("");
+        currentResponseCancellation = new();
+        var requestMessages = messages.ToArray();
+        currentResponseMessage = new ChatMessage(ChatRole.Assistant, [responseText]);
+        var resp = await ChatClient.GetResponseAsync(requestMessages, chatOptions, currentResponseCancellation.Token);
+        currentResponseMessage = null;
+        messages.AddMessages(resp);
+        StateHasChanged();
+    }
+
+    private async Task ResetConversationAsync()
+    {
+        currentId = Guid.NewGuid().ToString();
+        chatOptions.ChatThreadId = currentId;
+        messages.Clear();
+        messages.Add(new ChatMessage(ChatRole.Assistant, initialText));
+        await chatInput!.FocusAsync();
+    }
+
+    
+    public void Dispose()
+        => currentResponseCancellation?.Cancel();
+}

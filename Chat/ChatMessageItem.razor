@@ -1,0 +1,147 @@
+@using System.Runtime.CompilerServices
+@using System.Text.RegularExpressions
+@using System.Linq
+@using AdaptiveCards.Blazor
+@using Microsoft.Extensions.AI
+@using Markdig;
+@using Microsoft.JSInterop
+@using System.Reflection
+@inject IJSRuntime JS
+
+
+@if (Message.Role == ChatRole.User)
+{
+    <div class="user-message">
+        @Message.Text
+    </div>
+}
+else if (Message.Role == ChatRole.Assistant)
+{
+    foreach (var content in Message.Contents)
+    {
+        if (content is TextContent { Text: { Length: > 0 } text })
+        {
+            <div class="assistant-message">
+                <div>
+                    <div class="assistant-message-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 0 0 1.5-.189m-1.5.189a6.01 6.01 0 0 1-1.5-.189m3.75 7.478a12.06 12.06 0 0 1-4.5 0m3.75 2.383a14.406 14.406 0 0 1-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 1 0-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
+                        </svg>
+                    </div>
+                </div>
+                <div class="assistant-message-header">Assistant</div>
+                <div class="assistant-message-text">
+                    <FluentGrid>
+                        <FluentGridItem xs="6" sm="3">
+                            @if(IsAdaptiveCard(text))
+                            {
+                                <AdaptiveCard Schema="@text" OnSubmitAction="@RespondWithCardAction" HostConfig="@config"></AdaptiveCard>
+                            }
+                            else
+                            {
+                                @Convert(text)
+                                @foreach (var citation in citations ?? [])
+                                {
+                                    <ChatCitation File="@citation.File" Quote="@citation.Quote" />
+                                }
+                            }
+                        </FluentGridItem>
+                    </FluentGrid>
+
+
+                </div>
+            </div>
+        }
+
+    }
+}
+
+@code {
+    private static readonly ConditionalWeakTable<ChatMessage, ChatMessageItem> SubscribersLookup = new();
+    private static readonly Regex CitationRegex = new(@"<citation filename='(?<file>[^']*)'>(?<quote>.*?)</citation>", RegexOptions.NonBacktracking);
+
+    private List<(string File, string Quote)>? citations;
+
+    [Parameter, EditorRequired]
+    public required ChatMessage Message { get; set; }
+
+    [Parameter]
+    public bool InProgress { get; set;}
+
+    [CascadingParameter]
+    public Chat chat { get; set; } = null!;
+
+    private const string JAVASCRIPT_FILE = "./_content/AIComply.Blazor.Chat/Chat/ChatMessageItem.razor.js";
+    private string config { get; set; } = string.Empty;
+
+
+    protected override void OnInitialized()
+    {
+        SubscribersLookup.AddOrUpdate(Message, this);
+        var reader = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream("AIComply.Blazor.Chat.Chat.HostConfig.json")!);
+        var source = reader.ReadToEnd();
+        config = source;
+
+        if (!InProgress && Message.Role == ChatRole.Assistant && Message.Text is { Length: > 0 } text)
+        {
+            ParseCitations(text);
+        }
+    }
+
+    /// <summary>
+    /// Gets the <see cref="MarkdownPipeline"/> to use.
+    /// </summary>
+    public virtual MarkdownPipeline Pipeline => new MarkdownPipelineBuilder()
+        .UseEmojiAndSmiley()
+        .UseAdvancedExtensions()
+        .Build();
+
+    public static void NotifyChanged(ChatMessage source)
+    {
+        if (SubscribersLookup.TryGetValue(source, out var subscriber))
+        {
+            subscriber.StateHasChanged();
+        }
+    }
+
+    public MarkupString Convert(string content)
+    {
+        return new MarkupString(Markdig.Markdown.ToHtml(content ?? "", Pipeline));
+    }
+
+    public bool IsAdaptiveCard(string text)
+    {
+        return text.Contains("AdaptiveCard");
+    }
+
+    private void ParseCitations(string text)
+    {
+        var matches = CitationRegex.Matches(text);
+        citations = matches.Any()
+            ? matches.Select(m => (m.Groups["file"].Value, m.Groups["quote"].Value)).ToList()
+            : null;
+    }
+
+    /// <summary>
+    /// Where an adaptive card has text, respond with that text.
+    /// </summary>
+    /// <param name="eventArgs"></param>
+    /// <returns></returns>
+    public async Task RespondWithCardAction(AdaptiveCards.Blazor.Actions.SubmitEventArgs eventArgs)
+    {
+        if (chat != null)
+        {
+            var text = eventArgs.Data["name"]?.ToString();
+            await chat.AddUserMessageAsync(new ChatMessage(ChatRole.User, text));
+            StateHasChanged();
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+//            await JS.InvokeVoidAsync("import", JAVASCRIPT_FILE);
+        }
+    }
+}
