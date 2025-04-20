@@ -14,6 +14,7 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/aicomply/AIComply.Blazor.Chat</RepositoryUrl>
     <PackageTags>Blazor; Chat; AI;</PackageTags>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
