@@ -4,6 +4,16 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>AIComply Blazor Chat Component</Title>
+    <Authors>AI Compliance inc.</Authors>
+    <Company>AI Compliance inc.</Company>
+    <Copyright>(c) AI Compliance inc.</Copyright>
+    <Description>A Blazor component implimenting a chat interface handling markdown and adaptive cards.</Description>
+    <PackageProjectUrl>https://github.com/aicomply/AIComply.Blazor.Chat</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/aicomply/AIComply.Blazor.Chat</RepositoryUrl>
+    <PackageTags>Blazor; Chat; AI;</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,6 +36,13 @@
     <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.11.8" />
     <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.11.8" />
     <PackageReference Include="SimpleAdaptiveCardsBlazor" Version="1.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
