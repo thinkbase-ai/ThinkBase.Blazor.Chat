@@ -9,12 +9,13 @@
     <Authors>AI Compliance inc.</Authors>
     <Company>AI Compliance inc.</Company>
     <Copyright>(c) AI Compliance inc.</Copyright>
-    <Description>A Blazor component implimenting a chat interface handling markdown and adaptive cards.</Description>
+    <Description>A Blazor component implementing a chat interface handling markdown and adaptive cards.</Description>
     <PackageProjectUrl>https://github.com/aicomply/AIComply.Blazor.Chat</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <RepositoryUrl>https://github.com/aicomply/AIComply.Blazor.Chat</RepositoryUrl>
     <PackageTags>Blazor; Chat; AI;</PackageTags>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
   </PropertyGroup>
 
   <ItemGroup>
