@@ -32,7 +32,7 @@
     override protected async Task OnInitializedAsync()
     {
         currentId = Guid.NewGuid().ToString();
-        chatOptions.ChatThreadId = currentId;
+        chatOptions.ConversationId = currentId;
         // Kick off the conversation with the initial text
         var resp = await ChatClient.GetResponseAsync(new List<ChatMessage>(), chatOptions);
         messages.AddMessages(resp);
@@ -59,7 +59,7 @@
     private async Task ResetConversationAsync()
     {
         currentId = Guid.NewGuid().ToString();
-        chatOptions.ChatThreadId = currentId;
+        chatOptions.ConversationId = currentId;
         messages.Clear();
         messages.Add(new ChatMessage(ChatRole.Assistant, initialText));
         await chatInput!.FocusAsync();

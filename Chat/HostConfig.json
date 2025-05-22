@@ -241,11 +241,11 @@
       "actionMode": "inline",
       "inlineTopMargin": 8
     },
-    "actionsOrientation": "vertical",
-    "actionAlignment": "stretch"
+    "actionsOrientation": "horizontal",
+    "actionAlignment": "left"
   },
   "adaptiveCard": {
-    "allowCustomStyle": false
+    "allowCustomStyle": true
   },
   "imageSet": {
     "imageSize": "medium",

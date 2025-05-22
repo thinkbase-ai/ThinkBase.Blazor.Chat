@@ -32,7 +32,7 @@ else if (Message.Role == ChatRole.Assistant)
                 <div class="assistant-message-header">Assistant</div>
                 <div class="assistant-message-text">
                     <FluentGrid>
-                        <FluentGridItem xs="6" sm="3">
+                        <FluentGridItem xs="12" sm="6">
                             @if(IsAdaptiveCard(text))
                             {
                                 <AdaptiveCard Schema="@text" OnSubmitAction="@RespondWithCardAction" HostConfig="@config"></AdaptiveCard>

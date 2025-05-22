@@ -17,6 +17,7 @@ textarea {
     border: none;
     outline: none;
     flex-grow: 1;
+    min-width: 350px;
 }
 
     textarea:placeholder-shown + .tools {
