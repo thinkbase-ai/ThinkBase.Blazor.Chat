@@ -1,11 +1,19 @@
 
 <div class="chat-header-container main-background-gradient">
     <div class="chat-header-controls page-width">
-        <FluentButton IconStart="@(new Icons.Regular.Size24.Add())" @onclick=@OnNewChat>New chat</FluentButton>
+        <FluentStack>
+            <FluentButton IconStart="@(new Icons.Regular.Size24.Add())" @onclick=@OnNewChat>New chat</FluentButton>
+            @if (DebugMode)
+            {
+                <FluentSpacer /><ChatDebug />
+            }
+        </FluentStack>
     </div>
 </div>
 
 @code {
     [Parameter]
     public EventCallback OnNewChat { get; set; }
+    [Parameter]
+    public bool DebugMode { get; set; } = false;
 }

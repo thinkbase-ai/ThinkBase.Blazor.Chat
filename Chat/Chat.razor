@@ -4,8 +4,9 @@
 @inject NavigationManager Nav
 @implements IDisposable
 <div style="width: 100%">
-
-    <ChatHeader OnNewChat="@ResetConversationAsync" />
+    <CascadingValue Value="@this" IsFixed="true">
+        <ChatHeader OnNewChat="@ResetConversationAsync" DebugMode="true"/>
+    </CascadingValue>
     <CascadingValue Value="@this">
         <ChatMessageList Messages="@messages" InProgressMessage="@currentResponseMessage">
             <NoMessagesContent>
@@ -23,7 +24,7 @@
     [Parameter]
     public string? initialText { get; set; } = "Hello";
     private readonly ChatOptions chatOptions = new();
-    private readonly List<ChatMessage> messages = new();
+    public readonly List<ChatMessage> messages = new();
     private CancellationTokenSource? currentResponseCancellation;
     private ChatMessage? currentResponseMessage = null;
     private ChatInput? chatInput;
@@ -62,6 +63,20 @@
         chatOptions.ConversationId = currentId;
         messages.Clear();
         messages.Add(new ChatMessage(ChatRole.Assistant, initialText));
+        await chatInput!.FocusAsync();
+    }
+
+    public async Task LoadMessages(List<ChatMessage> messages)
+    {
+        currentId = Guid.NewGuid().ToString();
+        chatOptions.ConversationId = currentId;
+        this.messages.Clear();
+        //disable chatInput while loading messages
+        foreach(var message in messages.Where(m => m.Role == ChatRole.User ))
+        {
+            await AddUserMessageAsync(message);
+        }
+        // Re-enable chatInput after loading messages
         await chatInput!.FocusAsync();
     }
 

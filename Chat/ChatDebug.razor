@@ -1,0 +1,87 @@
+@using AIComply.Blazor.Chat.Dialogs
+@using AIComply.Blazor.Chat.Interfaces
+@using Microsoft.Extensions.AI
+@inject IDebugHistoryStore DebugHistoryStore
+@inject IDialogService DialogService;
+
+
+<FluentStack Style="border: 1px dotted">
+    Debug: &nbsp;
+    <FluentButton IconStart="@(new Icons.Regular.Size24.Add())" @onclick=@OnCapture></FluentButton>
+    <FluentButton IconStart="@(new Icons.Regular.Size24.Replay())" @onclick=@OnReplay></FluentButton>
+    <FluentButton IconStart="@(new Icons.Regular.Size24.Save())" @onclick=@OnSave></FluentButton>
+    <FluentButton IconStart="@(new Icons.Regular.Size24.DocumentSearch())" @onclick=@OnLoad></FluentButton>
+</FluentStack>"
+
+@code{
+
+
+    [CascadingParameter]
+    public Chat chat { get; set; } = null!;
+
+    async Task OnCapture()
+    {
+        await DebugHistoryStore.SetCurrentHistory(chat.messages);
+    }
+
+    async Task OnReplay()
+    {
+        await chat.LoadMessages(await DebugHistoryStore.GetCurrentHistory());
+    }
+
+    async Task OnSave()
+    {
+        try
+        {
+            var sc = new HistoryName { name = string.Empty };
+            DialogParameters parameters = new()
+                {
+                    Title = "Name the chat history",
+                    PrimaryAction = "Save",
+                    PrimaryActionEnabled = true,
+                    Width = "300px",
+                    TrapFocus = true,
+                    Modal = true,
+                    PreventScroll = true
+                };
+            IDialogReference dialog = await DialogService.ShowDialogAsync<HistoryNameDialog>(sc, parameters);
+            var result = await dialog.Result;
+            if (result != null)
+            {
+                var scr = result.Data as HistoryName;
+                await DebugHistoryStore.SaveHistory(chat.messages, scr!.name);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving history: {ex.Message}");
+        }
+    }
+
+    async Task OnLoad()
+    {
+        var names = await DebugHistoryStore.GetAllHistoryNames();
+        var sc = new HistoryList { choices = names.Distinct().Where(a => a is not null).ToList() };
+        DialogParameters parameters = new()
+        {
+            Title = "Restore history",
+            PrimaryAction = "Choose",
+            PrimaryActionEnabled = true,
+            Width = "350px",
+            TrapFocus = true,
+            Modal = true,
+            PreventScroll = true
+        };
+        IDialogReference dialog = await DialogService.ShowDialogAsync<HistoryListDialog>(sc, parameters);
+        var result = await dialog.Result;
+        if (result != null)
+        {
+            var scr = result.Data as HistoryList;
+            if (scr != null && scr.selections != null && scr.selections.Count() > 0)
+            {
+                await chat.LoadMessages(await DebugHistoryStore.GetNamedHistory(scr.selections.First()));
+            }
+        }
+
+    }
+}
