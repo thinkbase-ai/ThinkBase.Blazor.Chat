@@ -1,23 +1,48 @@
 @using AIComply.Blazor.Chat.Dialogs
 @using AIComply.Blazor.Chat.Interfaces
 @using Microsoft.Extensions.AI
+@using Microsoft.FluentUI.AspNetCore.Components
+@using Microsoft.JSInterop
+
 @inject IDebugHistoryStore DebugHistoryStore
 @inject IDialogService DialogService;
+@inject IJSRuntime _jsRuntime
 
 
-<FluentStack Style="border: 1px dotted">
-    Debug: &nbsp;
-    <FluentButton IconStart="@(new Icons.Regular.Size24.Add())" @onclick=@OnCapture></FluentButton>
-    <FluentButton IconStart="@(new Icons.Regular.Size24.Replay())" @onclick=@OnReplay></FluentButton>
-    <FluentButton IconStart="@(new Icons.Regular.Size24.Save())" @onclick=@OnSave></FluentButton>
-    <FluentButton IconStart="@(new Icons.Regular.Size24.DocumentSearch())" @onclick=@OnLoad></FluentButton>
-</FluentStack>"
+
+<FluentStack>
+    <FluentSpacer/>
+    Chat histories: &nbsp;
+    <FluentButton IconStart="@(new Icons.Regular.Size24.Add())" @onclick=@OnCapture Id="add"></FluentButton>
+    <FluentTooltip Anchor="add" HideTooltipOnCursorLeave="true" Position=TooltipPosition.End Delay=500>Keep the current conversation locally</FluentTooltip>
+    <FluentButton IconStart="@(new Icons.Regular.Size24.Replay())" @onclick=@OnReplay Id="replay"></FluentButton>
+    <FluentTooltip Anchor="replay" HideTooltipOnCursorLeave="true" Position=TooltipPosition.End Delay=500>Replay the locally stored conversation</FluentTooltip>
+    <FluentButton IconStart="@(new Icons.Regular.Size24.Save())" @onclick=@OnSave Id="save"></FluentButton>
+    <FluentTooltip Anchor="save" HideTooltipOnCursorLeave="true" Position=TooltipPosition.End Delay=500>Save the locally stored conversation to a named record</FluentTooltip>
+    <FluentButton IconStart="@(new Icons.Regular.Size24.DocumentSearch())" @onclick=@OnLoad Id="load"></FluentButton>
+    <FluentTooltip Anchor="load" HideTooltipOnCursorLeave="true" Position=TooltipPosition.End Delay=500>Load a named record and run it</FluentTooltip>
+    <FluentButton IconStart="@(new Icons.Regular.Size24.ArrowDownload())" @onclick=@OnDownLoad Id="download"></FluentButton>
+    <FluentTooltip Anchor="download" HideTooltipOnCursorLeave="true" Position=TooltipPosition.End Delay=500>Download the current converation to a json file</FluentTooltip>
+</FluentStack>
 
 @code{
 
 
     [CascadingParameter]
     public Chat chat { get; set; } = null!;
+    private IJSObjectReference? _downloadModule;
+
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+        if (firstRender)
+        {
+            _downloadModule = await _jsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/AIComply.Blazor.Chat/Chat/ChatDebug.razor.js");
+            await _downloadModule.InvokeVoidAsync("initialize");
+        }
+    }
 
     async Task OnCapture()
     {
@@ -26,13 +51,24 @@
 
     async Task OnReplay()
     {
-        await chat.LoadMessages(await DebugHistoryStore.GetCurrentHistory());
+        var history = await DebugHistoryStore.GetCurrentHistory();
+        if (history.Count == 0)
+        {
+            DialogService.ShowWarning("No chat history has been saved locally yet.");
+            return;
+        }
+        await chat.LoadMessages(history);
     }
 
     async Task OnSave()
     {
         try
         {
+            if(chat.messages == null || chat.messages.Count == 0)
+            {
+                DialogService.ShowWarning("There is no chat history to save.");
+                return;
+            }
             var sc = new HistoryName { name = string.Empty };
             DialogParameters parameters = new()
                 {
@@ -46,21 +82,37 @@
                 };
             IDialogReference dialog = await DialogService.ShowDialogAsync<HistoryNameDialog>(sc, parameters);
             var result = await dialog.Result;
-            if (result != null)
+            if (result != null && !result.Cancelled)
             {
                 var scr = result.Data as HistoryName;
-                await DebugHistoryStore.SaveHistory(chat.messages, scr!.name);
+                if (scr != null && !string.IsNullOrWhiteSpace(scr.name))
+                {
+                    // Save the current chat messages with the provided name
+                    await DebugHistoryStore.SaveHistory(chat.messages, scr.name);
+                }
+                else
+                {
+                    // Handle case where name is empty or null
+                    DialogService.ShowWarning("The name cannot be empty.");
+                }
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error saving history: {ex.Message}");
+            var error = $"Error saving history: {ex.Message}";
+            DialogService.ShowWarning(error);
+            Console.WriteLine(error);
         }
     }
 
     async Task OnLoad()
     {
         var names = await DebugHistoryStore.GetAllHistoryNames();
+        if(names.Count == 0)
+        {
+            DialogService.ShowWarning("There are no stored histories.");
+            return;
+        }
         var sc = new HistoryList { choices = names.Distinct().Where(a => a is not null).ToList() };
         DialogParameters parameters = new()
         {
@@ -74,14 +126,36 @@
         };
         IDialogReference dialog = await DialogService.ShowDialogAsync<HistoryListDialog>(sc, parameters);
         var result = await dialog.Result;
-        if (result != null)
+        if (result != null && !result.Cancelled)
         {
             var scr = result.Data as HistoryList;
-            if (scr != null && scr.selections != null && scr.selections.Count() > 0)
+            if (scr != null && scr.selection != null)
             {
-                await chat.LoadMessages(await DebugHistoryStore.GetNamedHistory(scr.selections.First()));
+                await chat.LoadMessages(await DebugHistoryStore.GetNamedHistory(scr.selection));
             }
         }
 
+    }
+    async Task OnDownLoad()
+    {
+        try
+        {
+            var fileName = $"chat_history_{DateTime.Now:yyyyMMdd_HHmmss}.json";
+            var history = await DebugHistoryStore.GetCurrentHistory();
+            if (history != null)
+            {
+                var json = System.Text.Json.JsonSerializer.Serialize(history);
+                var bytes = System.Text.Encoding.UTF8.GetBytes(json);
+                var fileStream = new System.IO.MemoryStream(bytes);
+                using var streamRef = new DotNetStreamReference(stream: fileStream);
+                await _jsRuntime.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
+            }
+        }
+        catch (Exception ex)
+        {
+            var error = $"Error downloading history: {ex.Message}";
+            DialogService.ShowWarning(error);
+            Console.WriteLine(error);
+        }
     }
 }

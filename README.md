@@ -17,7 +17,7 @@ You will need to  follow the instructions [here to support dialogs](https://www.
 
 The component has a debug mode that can be enabled by setting the `DebugMode` property to true. In this mode, you can record a series of responses and replay them later. This is useful for testing and debugging your chat interactions.
 
-In order to use it you must implement an interface of the following form:
+In order to use it you can implement an interface of the following form:
 ```csharp
 
     public interface IDebugHistoryStore
@@ -38,6 +38,7 @@ In order to use it you must implement an interface of the following form:
     }
 
 ```
+An example implementation is provided in the `DebugHistoryStore` class. You can use this class to save and retrieve chat history from browser local storage.
 
 
 

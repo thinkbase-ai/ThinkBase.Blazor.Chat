@@ -14,7 +14,7 @@ namespace AIComply.Blazor.Chat.Interfaces
         
         Task<List<string>> GetAllHistoryNames();
  
-        void ClearHistory();
+        Task ClearHistory();
         Task<List<ChatMessage>> GetNamedHistory(string name);
 
         Task<List<ChatMessage>> GetCurrentHistory();

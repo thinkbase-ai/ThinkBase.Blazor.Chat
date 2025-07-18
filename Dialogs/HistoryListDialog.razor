@@ -1,24 +1,16 @@
-﻿@implements IDialogContentComponent<HistoryList>
+﻿@using Microsoft.FluentUI.AspNetCore.Components
+@implements IDialogContentComponent<HistoryList>
 
-<FluentAutocomplete TOption="string"
+<FluentListbox TOption="string"
                     Label="Select a History to restore"
                     Width="250px"
                     Placeholder="history names"
-                    OnOptionsSearch="@OnSearch"
-                    MaximumSelectedOptions="1"
+                    Items="@Content.choices"
+                    OptionValue="@(item => item)"
                     OptionText="@(item => item)"
-                    @bind-SelectedOptions="@Content.selections" />
+                    @bind-SelectedOption="@Content.selection" />
 
 @code {
     [Parameter]
     public HistoryList Content { get; set; } = new HistoryList(); // Ensure SearchContent is properly initialized.
-
-    private void OnSearch(OptionsSearchEventArgs<string> e)
-    {
-        if (Content.choices != null && !string.IsNullOrEmpty(e.Text))
-        {
-            e.Items = Content.choices.Where(i => i != null && i.StartsWith(e.Text, StringComparison.OrdinalIgnoreCase)).OrderBy(i => i);
-        }
-    }
-
 }

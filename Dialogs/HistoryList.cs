@@ -9,7 +9,7 @@ namespace AIComply.Blazor.Chat.Dialogs
     public class HistoryList
     {
         public List<string> choices { get; set; } = new List<string>();
-        public IEnumerable<string>? selections { get; set; }
+        public string? selection { get; set; }
 
     }
 }

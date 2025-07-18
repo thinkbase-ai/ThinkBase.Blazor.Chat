@@ -1,7 +1,9 @@
-﻿
+﻿@using Microsoft.FluentUI.AspNetCore.Components
+
 @implements IDialogContentComponent<HistoryName>
 <FluentTextField @bind-Value=Content.name Label="History name"></FluentTextField>
 
 @code {
+    [Parameter]
     public HistoryName Content { get; set; } = new HistoryName(); // Ensure SearchContent is properly initialized.
 }
