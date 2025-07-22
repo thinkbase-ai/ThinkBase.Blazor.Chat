@@ -10,7 +10,7 @@ namespace AIComply.Blazor.Chat.Interfaces
     public class DebugHistoryStore : IDebugHistoryStore
     {
         ILocalStorageService _localStorage;
-        string CurrentHistoryName = "**CurrentHistory**";
+        string CurrentHistoryName = nameof(DebugHistoryStore) + ":" + "**CurrentHistory**";
         public DebugHistoryStore(ILocalStorageService LocalStorage)
         {
             _localStorage = LocalStorage;
@@ -23,9 +23,19 @@ namespace AIComply.Blazor.Chat.Interfaces
         public async Task<List<string>> GetAllHistoryNames()
         {
             var keys =  await _localStorage.KeysAsync();
-            return keys
+            var res =  keys
                 .Where(key => key != CurrentHistoryName) // Exclude the current history name
                 .ToList();
+            // Remove the prefix from each key
+            var reducedKeys = new List<string>();
+            foreach (var key in res)
+            {
+                if (key.StartsWith(nameof(DebugHistoryStore) + ":"))
+                {
+                    reducedKeys.Add( key.Substring((nameof(DebugHistoryStore) + ":").Length));
+                }
+            }
+            return reducedKeys;
         }
 
         public async Task<List<ChatMessage>> GetCurrentHistory()
@@ -35,7 +45,7 @@ namespace AIComply.Blazor.Chat.Interfaces
 
         public async Task<List<ChatMessage>> GetNamedHistory(string name)
         {
-            return await _localStorage.GetItemAsync<List<ChatMessage>>(name) ?? [];
+            return await _localStorage.GetItemAsync<List<ChatMessage>>(nameof(DebugHistoryStore) + ":" + name) ?? [];
         }
 
         public async Task SaveHistory(List<ChatMessage> history, string name)
@@ -44,7 +54,7 @@ namespace AIComply.Blazor.Chat.Interfaces
             {
                 throw new ArgumentException("History name cannot be null or empty.", nameof(name));
             }
-            await _localStorage.SetItemAsync(name, history);
+            await _localStorage.SetItemAsync(nameof(DebugHistoryStore) + ":" + name, history);
         }
 
         public async Task SetCurrentHistory(List<ChatMessage>? history)
