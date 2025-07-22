@@ -24,7 +24,7 @@ namespace AIComply.Blazor.Chat.Interfaces
         {
             var keys =  await _localStorage.KeysAsync();
             var res =  keys
-                .Where(key => key != CurrentHistoryName) // Exclude the current history name
+                .Where(key => key != CurrentHistoryName && key.StartsWith(nameof(DebugHistoryStore))) // Exclude the current history name
                 .ToList();
             // Remove the prefix from each key
             var reducedKeys = new List<string>();
