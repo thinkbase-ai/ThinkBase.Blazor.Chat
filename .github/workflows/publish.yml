@@ -1,4 +1,4 @@
-name: Create AIComply.Blazor.Chat nuget package
+name: Create ThinkBase.Blazor.Chat nuget package
 
 on:
   push:
