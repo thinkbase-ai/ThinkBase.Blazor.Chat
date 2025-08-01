@@ -15,7 +15,8 @@
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <RepositoryUrl>https://github.com/aicomply/AIComply.Blazor.Chat</RepositoryUrl>
     <PackageTags>Blazor; Chat; AI;</PackageTags>
-    <Version>1.0.8</Version>
+    <Version>1.0.9</Version>
+    <PackageIcon>ThinkbaseLogo_192.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -43,6 +44,10 @@
 
   <ItemGroup>
     <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="ThinkbaseLogo_192.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
