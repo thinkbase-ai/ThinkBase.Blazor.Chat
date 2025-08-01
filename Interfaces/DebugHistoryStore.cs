@@ -2,7 +2,7 @@
 using Microsoft.Extensions.AI;
 
 
-namespace AIComply.Blazor.Chat.Interfaces
+namespace ThinkBase.Blazor.Chat.Interfaces
 {
     /// <summary>
     /// Ideally this would use the browser memory.

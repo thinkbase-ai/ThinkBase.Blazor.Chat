@@ -71,14 +71,14 @@ else if (Message.Role == ChatRole.Assistant)
     [CascadingParameter]
     public Chat chat { get; set; } = null!;
 
-    private const string JAVASCRIPT_FILE = "./_content/AIComply.Blazor.Chat/Chat/ChatMessageItem.razor.js";
+    private const string JAVASCRIPT_FILE = "./_content/ThinkBase.Blazor.Chat/Chat/ChatMessageItem.razor.js";
     private string config { get; set; } = string.Empty;
 
 
     protected override void OnInitialized()
     {
         SubscribersLookup.AddOrUpdate(Message, this);
-        var reader = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream("AIComply.Blazor.Chat.Chat.HostConfig.json")!);
+        var reader = new StreamReader(Assembly.GetExecutingAssembly().GetManifestResourceStream("ThinkBase.Blazor.Chat.Chat.HostConfig.json")!);
         var source = reader.ReadToEnd();
         config = source;
 

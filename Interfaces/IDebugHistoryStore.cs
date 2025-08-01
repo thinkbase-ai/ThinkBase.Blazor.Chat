@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AIComply.Blazor.Chat.Interfaces
+namespace ThinkBase.Blazor.Chat.Interfaces
 {
     public interface IDebugHistoryStore
     {

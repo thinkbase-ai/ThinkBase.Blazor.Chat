@@ -1,6 +1,6 @@
 using Microsoft.JSInterop;
 
-namespace AIComply.Blazor.Chat
+namespace ThinkBase.Blazor.Chat
 {
     // This class provides an example of how JavaScript functionality can be wrapped
     // in a .NET class for easy consumption. The associated JavaScript module is
@@ -16,7 +16,7 @@ namespace AIComply.Blazor.Chat
         public ExampleJsInterop(IJSRuntime jsRuntime)
         {
             moduleTask = new(() => jsRuntime.InvokeAsync<IJSObjectReference>(
-                "import", "./_content/AIComply.Blazor.Chat/exampleJsInterop.js").AsTask());
+                "import", "./_content/ThinkBase.Blazor.Chat/exampleJsInterop.js").AsTask());
         }
 
         public async ValueTask<string> Prompt(string message)

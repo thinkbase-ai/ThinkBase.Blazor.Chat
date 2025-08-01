@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AIComply.Blazor.Chat.Dialogs
+namespace ThinkBase.Blazor.Chat.Dialogs
 {
     public class HistoryName
     {

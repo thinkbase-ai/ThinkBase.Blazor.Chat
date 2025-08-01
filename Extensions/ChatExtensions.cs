@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AIComply.Blazor.Chat.Extensions
+namespace ThinkBase.Blazor.Chat.Extensions
 {
     public static class ChatServiceCollectionExtensions
     {

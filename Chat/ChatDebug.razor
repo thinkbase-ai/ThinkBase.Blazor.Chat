@@ -1,8 +1,9 @@
-@using AIComply.Blazor.Chat.Dialogs
-@using AIComply.Blazor.Chat.Interfaces
+@using ThinkBase.Blazor.Chat.Dialogs
+@using ThinkBase.Blazor.Chat.Interfaces
 @using Microsoft.Extensions.AI
 @using Microsoft.FluentUI.AspNetCore.Components
 @using Microsoft.JSInterop
+
 
 @inject IDebugHistoryStore DebugHistoryStore
 @inject IDialogService DialogService;
@@ -39,7 +40,7 @@
         await base.OnAfterRenderAsync(firstRender);
         if (firstRender)
         {
-            _downloadModule = await _jsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/AIComply.Blazor.Chat/Chat/ChatDebug.razor.js");
+            _downloadModule = await _jsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/ThinkBase.Blazor.Chat/Chat/ChatDebug.razor.js");
             await _downloadModule.InvokeVoidAsync("initialize");
         }
     }

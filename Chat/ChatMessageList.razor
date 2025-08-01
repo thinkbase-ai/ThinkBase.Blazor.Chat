@@ -32,7 +32,7 @@
     [Parameter]
     public RenderFragment? NoMessagesContent { get; set; }
 
-    private const string JAVASCRIPT_FILE = "./_content/AIComply.Blazor.Chat/Chat/ChatMessageList.razor.js";
+    private const string JAVASCRIPT_FILE = "./_content/ThinkBase.Blazor.Chat/Chat/ChatMessageList.razor.js";
 
 
     private bool IsEmpty => !Messages.Any(m => (m.Role == ChatRole.User || m.Role == ChatRole.Assistant) && !string.IsNullOrEmpty(m.Text));
