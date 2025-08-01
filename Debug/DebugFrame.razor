@@ -1,0 +1,44 @@
+﻿@using AIComply.Blazor.Chat.Chat
+@using System.Web
+@using Microsoft.Extensions.Configuration
+@inject IDictionary<string, string> DebugData
+
+
+        <FluentSplitter Orientation="Orientation.Horizontal" BarSize="4" Panel1MinSize="50%" Style="height: 100%">
+            <Panel1>
+                <FluentStack Orientation="Orientation.Vertical">
+                    <FluentStack Orientation="Orientation.Horizontal">
+                        <h1>Conversation</h1><FluentSpacer />
+                    </FluentStack>
+                    <Chat />
+                </FluentStack>
+            </Panel1>
+            <Panel2>
+                <h1>Debug data</h1>
+                <FluentTabs>
+                    <FluentTab Label="Hierarchy" Id="tab-he">
+                @(new MarkupString(TextToHtml(DebugData["MetaDataTopics"] ?? "")))
+                    </FluentTab>
+                    <FluentTab Label="Response" Id="tab-data">
+                @(new MarkupString(TextToHtml(DebugData["InterimResult"] ?? "")))
+                    </FluentTab>
+                    <FluentTab Label="Documents" Id="tab-docs">
+                @(new MarkupString(TextToHtml(DebugData["DocumentsFound"] ?? "")))
+                    </FluentTab>
+                </FluentTabs>
+            </Panel2>
+        </FluentSplitter>
+
+
+@code {
+
+    public static string TextToHtml(string text)
+    {
+        text = HttpUtility.HtmlEncode(text);
+        text = text.Replace("\r\n", "\r");
+        text = text.Replace("\n", "\r");
+        text = text.Replace("\r", "<br>\r\n");
+        text = text.Replace("  ", " &nbsp;");
+        return text;
+    }
+}
