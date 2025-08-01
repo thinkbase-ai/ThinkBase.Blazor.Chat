@@ -5,10 +5,10 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Title>AIComply Blazor Chat Component</Title>
-    <Authors>AI Compliance inc.</Authors>
-    <Company>AI Compliance inc.</Company>
-    <Copyright>(c) AI Compliance inc.</Copyright>
+    <Title>ThinkBase Blazor Chat Component</Title>
+    <Authors>ThinkBase LLC</Authors>
+    <Company>ThinkBase LLC</Company>
+    <Copyright>(c) ThinkBase LLC</Copyright>
     <Description>A Blazor component implementing a chat interface handling markdown and adaptive cards.</Description>
     <PackageProjectUrl>https://github.com/aicomply/AIComply.Blazor.Chat</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
