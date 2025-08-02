@@ -23,6 +23,8 @@
 @code {
     [Parameter]
     public string? initialText { get; set; } = "Hello";
+    [Parameter]
+    public string? GroupIndex { get; set; }
     private readonly ChatOptions chatOptions = new();
     public readonly List<ChatMessage> messages = new();
     private CancellationTokenSource? currentResponseCancellation;
@@ -34,6 +36,7 @@
     {
         currentId = Guid.NewGuid().ToString();
         chatOptions.ConversationId = currentId;
+        chatOptions.AdditionalProperties["GroupIndex"] = GroupIndex ?? "default";
         // Kick off the conversation with the initial text
         var resp = await ChatClient.GetResponseAsync(new List<ChatMessage>(), chatOptions);
         messages.AddMessages(resp);
