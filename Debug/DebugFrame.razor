@@ -17,13 +17,13 @@
                 <h1>Debug data</h1>
                 <FluentTabs>
                     <FluentTab Label="Hierarchy" Id="tab-he">
-                @(new MarkupString(TextToHtml(DebugData["MetaDataTopics"] ?? "")))
+                @(new MarkupString(TextToHtml(DebugData.TryGetValue("MetaDataTopics", out var topics)  ? topics : "")))
                     </FluentTab>
                     <FluentTab Label="Response" Id="tab-data">
-                @(new MarkupString(TextToHtml(DebugData["InterimResult"] ?? "")))
+                @(new MarkupString(TextToHtml(DebugData.TryGetValue("InterimResult", out var interim)? interim : "")))
                     </FluentTab>
                     <FluentTab Label="Documents" Id="tab-docs">
-                @(new MarkupString(TextToHtml(DebugData["DocumentsFound"] ?? "")))
+                @(new MarkupString(TextToHtml(DebugData.TryGetValue("DocumentsFound",out var docs) ? docs : "")))
                     </FluentTab>
                 </FluentTabs>
             </Panel2>
