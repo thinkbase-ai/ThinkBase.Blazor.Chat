@@ -36,6 +36,7 @@
     {
         currentId = Guid.NewGuid().ToString();
         chatOptions.ConversationId = currentId;
+        chatOptions.AdditionalProperties ??= new ();
         chatOptions.AdditionalProperties["GroupIndex"] = GroupIndex ?? "default";
         // Kick off the conversation with the initial text
         var resp = await ChatClient.GetResponseAsync(new List<ChatMessage>(), chatOptions);
