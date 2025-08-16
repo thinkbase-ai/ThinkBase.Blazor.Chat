@@ -10,7 +10,7 @@
     <CascadingValue Value="@this">
         <ChatMessageList Messages="@messages" InProgressMessage="@currentResponseMessage">
             <NoMessagesContent>
-                <div>@initialText</div>
+                <div>@InitialText</div>
             </NoMessagesContent>
         </ChatMessageList>
     </CascadingValue>
@@ -22,9 +22,12 @@
 
 @code {
     [Parameter]
-    public string? initialText { get; set; } = "Hello";
+    public string? InitialText { get; set; } = "Hello";
     [Parameter]
-    public string? GroupIndex { get; set; }
+    public string? Index { get; set; }
+    [Parameter]
+    public string? UserId { get; set; }
+
     private readonly ChatOptions chatOptions = new();
     public readonly List<ChatMessage> messages = new();
     private CancellationTokenSource? currentResponseCancellation;
@@ -37,7 +40,8 @@
         currentId = Guid.NewGuid().ToString();
         chatOptions.ConversationId = currentId;
         chatOptions.AdditionalProperties ??= new ();
-        chatOptions.AdditionalProperties["GroupIndex"] = GroupIndex ?? "default";
+        chatOptions.AdditionalProperties["Index"] = Index ?? "default";
+        chatOptions.AdditionalProperties["UserId"] = UserId ?? "default";
         // Kick off the conversation with the initial text
         var resp = await ChatClient.GetResponseAsync(new List<ChatMessage>(), chatOptions);
         messages.AddMessages(resp);
@@ -66,7 +70,7 @@
         currentId = Guid.NewGuid().ToString();
         chatOptions.ConversationId = currentId;
         messages.Clear();
-        messages.Add(new ChatMessage(ChatRole.Assistant, initialText));
+        messages.Add(new ChatMessage(ChatRole.Assistant, InitialText));
         await chatInput!.FocusAsync();
     }
 

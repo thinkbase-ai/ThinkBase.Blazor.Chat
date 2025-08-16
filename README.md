@@ -40,5 +40,14 @@ In order to use it you can implement an interface of the following form:
 ```
 An example implementation is provided in the `DebugHistoryStore` class. You can use this class to save and retrieve chat history from browser local storage.
 
+## Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `InitialText` | `string` | The Initial text shown before processing starts. Default: 'Hello'. |
+| `DebugMode` | `bool` | If true, enables debug mode for recording and replaying chat history. Default: false. |
+| `Index` | `string` | Enables the user to pass on an index for RAG Processing. An AdditionalOption record with the name 'Index' and the value given is created for downstream processing in the ChatClient. |
+| `UserId` | `string` | Enables the user to pass on a user id for permissions and access handling. An AdditionalOption record with the name 'UserId' and the value given is created for downstream processing  in the ChatClient. |
+
 
 
