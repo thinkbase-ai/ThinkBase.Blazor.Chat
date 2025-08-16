@@ -1,5 +1,6 @@
 ﻿@using System.ComponentModel
 @using Microsoft.Extensions.AI
+@using System.ComponentModel.DataAnnotations
 @inject IChatClient ChatClient
 @inject NavigationManager Nav
 @implements IDisposable
@@ -21,12 +22,15 @@
 </div>
 
 @code {
+
     [Parameter]
-    public string? InitialText { get; set; } = "Hello";
+    public string InitialText { get; set; } = "Hello";
+
     [Parameter]
-    public string? Index { get; set; }
+    public string Index { get; set; } = "default";
+
     [Parameter]
-    public string? UserId { get; set; }
+    public string UserId { get; set; } = "default";
 
     private readonly ChatOptions chatOptions = new();
     public readonly List<ChatMessage> messages = new();
@@ -40,8 +44,8 @@
         currentId = Guid.NewGuid().ToString();
         chatOptions.ConversationId = currentId;
         chatOptions.AdditionalProperties ??= new ();
-        chatOptions.AdditionalProperties["Index"] = Index ?? "default";
-        chatOptions.AdditionalProperties["UserId"] = UserId ?? "default";
+        chatOptions.AdditionalProperties["Index"] = Index;
+        chatOptions.AdditionalProperties["UserId"] = UserId;
         // Kick off the conversation with the initial text
         var resp = await ChatClient.GetResponseAsync(new List<ChatMessage>(), chatOptions);
         messages.AddMessages(resp);
