@@ -15,7 +15,7 @@
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <RepositoryUrl>https://github.com/aicomply/AIComply.Blazor.Chat</RepositoryUrl>
     <PackageTags>Blazor; Chat; AI;</PackageTags>
-    <Version>1.0.13</Version>
+    <Version>1.0.14</Version>
     <PackageIcon>ThinkbaseLogo_192.png</PackageIcon>
   </PropertyGroup>
 
@@ -34,11 +34,11 @@
 
   <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
-    <PackageReference Include="Markdig" Version="0.41.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.5" />
-    <PackageReference Include="Microsoft.Extensions.AI" Version="9.5.0" />
-    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.11.9" />
-    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.11.9" />
+    <PackageReference Include="Markdig" Version="0.41.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.8" />
+    <PackageReference Include="Microsoft.Extensions.AI" Version="9.8.0" />
+    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.12.1" />
+    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" Version="4.12.1" />
     <PackageReference Include="SimpleAdaptiveCardsBlazor" Version="1.0.4" />
   </ItemGroup>
 
