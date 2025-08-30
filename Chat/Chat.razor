@@ -32,6 +32,10 @@
     [Parameter]
     public string UserId { get; set; } = "default";
 
+    // Event handler for copy signal
+    [Parameter]
+    public EventCallback<string> OnCopy { get; set; }
+
     private readonly ChatOptions chatOptions = new();
     public readonly List<ChatMessage> messages = new();
     private CancellationTokenSource? currentResponseCancellation;
@@ -92,7 +96,14 @@
         await chatInput!.FocusAsync();
     }
 
-    
+    public async Task SignalCopy(string text)
+    {
+        if (OnCopy.HasDelegate)
+        {
+            await OnCopy.InvokeAsync(text);
+        }
+    }
+
     public void Dispose()
         => currentResponseCancellation?.Cancel();
 }
