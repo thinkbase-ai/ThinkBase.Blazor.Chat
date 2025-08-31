@@ -15,7 +15,7 @@
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <RepositoryUrl>https://github.com/aicomply/AIComply.Blazor.Chat</RepositoryUrl>
     <PackageTags>Blazor; Chat; AI;</PackageTags>
-    <Version>1.0.15</Version>
+    <Version>1.0.16</Version>
     <PackageIcon>ThinkbaseLogo_192.png</PackageIcon>
   </PropertyGroup>
 
