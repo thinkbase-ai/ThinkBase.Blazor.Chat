@@ -6,7 +6,7 @@
 @implements IDisposable
 <div style="width: 100%">
     <CascadingValue Value="@this" IsFixed="true">
-        <ChatHeader OnNewChat="@ResetConversationAsync" DebugMode="true"/>
+        <ChatHeader OnNewChat="@ResetConversationAsync" DebugMode="@debugMode"/>
     </CascadingValue>
     <CascadingValue Value="@this">
         <ChatMessageList Messages="@messages" InProgressMessage="@currentResponseMessage">
@@ -31,6 +31,9 @@
 
     [Parameter]
     public string UserId { get; set; } = "default";
+
+    [Parameter]
+    public bool debugMode { get; set; }  = false;
 
     // Event handler for copy signal
     [Parameter]
