@@ -39,6 +39,9 @@
     [Parameter]
     public EventCallback<string> OnCopy { get; set; }
 
+    [Parameter]
+    public EventCallback<string> IndexChanged { get; set; }
+
     private readonly ChatOptions chatOptions = new();
     public readonly List<ChatMessage> messages = new();
     private CancellationTokenSource? currentResponseCancellation;
