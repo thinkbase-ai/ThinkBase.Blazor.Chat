@@ -43,8 +43,11 @@ else if (Message.Role == ChatRole.Assistant)
                                 {
                                     <ChatCitation File="@citation.File" Quote="@citation.Quote" />
                                 }
-                                <FluentButton IconStart="@(new Icons.Regular.Size16.CopyArrowRight())"  OnClick="@CopyToMarkdown" Id="copy"></FluentButton>
-                                <FluentTooltip Anchor="copy" HideTooltipOnCursorLeave="true" Position=TooltipPosition.End Delay=500>Copy this response to the editor</FluentTooltip>
+                                @if(chat.ShowCopyButton)
+                                {
+                                    <FluentButton IconStart="@(new Icons.Regular.Size16.CopyArrowRight())"  OnClick="@CopyToMarkdown" Id="copy"></FluentButton>
+                                    <FluentTooltip Anchor="copy" HideTooltipOnCursorLeave="true" Position=TooltipPosition.End Delay=500>Copy this response to the editor</FluentTooltip>
+                                }
                             }
                         </FluentGridItem>
                     </FluentGrid>

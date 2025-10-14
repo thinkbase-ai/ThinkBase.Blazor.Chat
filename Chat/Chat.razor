@@ -42,6 +42,9 @@
     [Parameter]
     public EventCallback<string> IndexChanged { get; set; }
 
+    [Parameter]
+    public bool ShowCopyButton { get; set; } = true;
+
     private readonly ChatOptions chatOptions = new();
     public readonly List<ChatMessage> messages = new();
     private CancellationTokenSource? currentResponseCancellation;
@@ -73,6 +76,7 @@
         currentResponseCancellation = new();
         var requestMessages = messages.ToArray();
         currentResponseMessage = new ChatMessage(ChatRole.Assistant, [responseText]);
+        chatOptions.AdditionalProperties["Index"] = Index!;
         var resp = await ChatClient.GetResponseAsync(requestMessages, chatOptions, currentResponseCancellation.Token);
         currentResponseMessage = null;
         messages.AddMessages(resp);
