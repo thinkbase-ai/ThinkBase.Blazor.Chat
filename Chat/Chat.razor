@@ -1,8 +1,8 @@
 ﻿@using System.ComponentModel
 @using Microsoft.Extensions.AI
 @using System.ComponentModel.DataAnnotations
-@inject IChatClient ChatClient
-@inject NavigationManager Nav
+@using Microsoft.Extensions.DependencyInjection
+@inject IServiceProvider ServiceProvider
 @implements IDisposable
 <div style="width: 100%">
     <CascadingValue Value="@this" IsFixed="true">
@@ -45,12 +45,16 @@
     [Parameter]
     public bool ShowCopyButton { get; set; } = true;
 
+    [Parameter]
+    public string ProcessName { get; set; } = "EditChatClient";
+
     private readonly ChatOptions chatOptions = new();
     public readonly List<ChatMessage> messages = new();
     private CancellationTokenSource? currentResponseCancellation;
     private ChatMessage? currentResponseMessage = null;
     private ChatInput? chatInput;
     private string? currentId;
+    private IChatClient? ChatClient;
 
     override protected async Task OnInitializedAsync()
     {
@@ -59,6 +63,11 @@
         chatOptions.AdditionalProperties ??= new ();
         chatOptions.AdditionalProperties["Index"] = Index;
         chatOptions.AdditionalProperties["UserId"] = UserId;
+        ChatClient = ServiceProvider.GetKeyedService<IChatClient>(ProcessName);
+        if(ChatClient == null)
+        {
+            throw new InvalidOperationException($"No IChatClient registered with the name '{ProcessName}'.");
+        }
         // Kick off the conversation with the initial text
         var resp = await ChatClient.GetResponseAsync(new List<ChatMessage>(), chatOptions);
         messages.AddMessages(resp);
@@ -76,7 +85,11 @@
         currentResponseCancellation = new();
         var requestMessages = messages.ToArray();
         currentResponseMessage = new ChatMessage(ChatRole.Assistant, [responseText]);
-        chatOptions.AdditionalProperties["Index"] = Index!;
+        chatOptions.AdditionalProperties!["Index"] = Index!;
+        if (ChatClient == null)
+        {
+            throw new InvalidOperationException($"No IChatClient registered with the name '{ProcessName}'.");
+        }
         var resp = await ChatClient.GetResponseAsync(requestMessages, chatOptions, currentResponseCancellation.Token);
         currentResponseMessage = null;
         messages.AddMessages(resp);
