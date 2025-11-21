@@ -43,7 +43,7 @@
     public EventCallback<string> OnCopy { get; set; }
 
     [Parameter]
-    public EventCallback<string> IndexChanged { get; set; }
+    public EventCallback<string> IndexIdChanged { get; set; }
 
     [Parameter]
     public bool ShowCopyButton { get; set; } = true;
@@ -59,22 +59,27 @@
     private string? currentId;
     private IChatClient? ChatClient;
 
-    override protected async Task OnInitializedAsync()
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        currentId = Guid.NewGuid().ToString();
-        chatOptions.ConversationId = currentId;
-        chatOptions.AdditionalProperties ??= new ();
-        chatOptions.AdditionalProperties["Index"] = IndexId;
-        chatOptions.AdditionalProperties["UserId"] = UserId;
-        chatOptions.AdditionalProperties["IndexName"] = IndexName;
-        ChatClient = ServiceProvider.GetKeyedService<IChatClient>(ProcessName);
-        if(ChatClient == null)
+        if (firstRender)
         {
-            throw new InvalidOperationException($"No IChatClient registered with the name '{ProcessName}'.");
+            currentId = Guid.NewGuid().ToString();
+            chatOptions.ConversationId = currentId;
+            chatOptions.AdditionalProperties ??= new();
+            chatOptions.AdditionalProperties["Index"] = IndexId;
+            chatOptions.AdditionalProperties["UserId"] = UserId;
+            chatOptions.AdditionalProperties["IndexName"] = IndexName;
+            ChatClient = ServiceProvider.GetKeyedService<IChatClient>(ProcessName);
+            if (ChatClient == null)
+            {
+                throw new InvalidOperationException($"No IChatClient registered with the name '{ProcessName}'.");
+            }
+            // Kick off the conversation with the initial text
+            var resp = await ChatClient.GetResponseAsync(new List<ChatMessage>(), chatOptions);
+            messages.AddMessages(resp);
         }
-        // Kick off the conversation with the initial text
-        var resp = await ChatClient.GetResponseAsync(new List<ChatMessage>(), chatOptions);
-        messages.AddMessages(resp);
     }
 
     public async Task AddUserMessageAsync(ChatMessage userMessage)
