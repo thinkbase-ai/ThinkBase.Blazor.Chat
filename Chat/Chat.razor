@@ -27,10 +27,13 @@
     public string InitialText { get; set; } = "Hello";
 
     [Parameter]
-    public string Index { get; set; } = "default";
+    public string? IndexName { get; set; }
 
     [Parameter]
-    public string UserId { get; set; } = "default";
+    public string? IndexId { get; set; }
+
+    [Parameter]
+    public string? UserId { get; set; }
 
     [Parameter]
     public bool debugMode { get; set; }  = false;
@@ -61,8 +64,9 @@
         currentId = Guid.NewGuid().ToString();
         chatOptions.ConversationId = currentId;
         chatOptions.AdditionalProperties ??= new ();
-        chatOptions.AdditionalProperties["Index"] = Index;
+        chatOptions.AdditionalProperties["Index"] = IndexId;
         chatOptions.AdditionalProperties["UserId"] = UserId;
+        chatOptions.AdditionalProperties["IndexName"] = IndexName;
         ChatClient = ServiceProvider.GetKeyedService<IChatClient>(ProcessName);
         if(ChatClient == null)
         {
@@ -85,7 +89,6 @@
         currentResponseCancellation = new();
         var requestMessages = messages.ToArray();
         currentResponseMessage = new ChatMessage(ChatRole.Assistant, [responseText]);
-        chatOptions.AdditionalProperties!["Index"] = Index!;
         if (ChatClient == null)
         {
             throw new InvalidOperationException($"No IChatClient registered with the name '{ProcessName}'.");
