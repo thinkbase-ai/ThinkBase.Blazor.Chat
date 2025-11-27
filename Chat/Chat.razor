@@ -58,13 +58,22 @@
     private ChatInput? chatInput;
     private string? currentId;
     private IChatClient? ChatClient;
+    private string? _prevIndexId;
+    private string? _prevIndexName;
+    private string? _prevUserId;
 
 
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnParametersSetAsync()
     {
-        if (firstRender)
+        if (!string.IsNullOrWhiteSpace(IndexId) &&
+            !string.IsNullOrWhiteSpace(IndexName) &&
+            !string.IsNullOrWhiteSpace(UserId) &&
+            (_prevIndexId != IndexId || _prevIndexName != IndexName || _prevUserId != UserId))
         {
+            _prevIndexId = IndexId;
+            _prevIndexName = IndexName;
+            _prevUserId = UserId;
             currentId = Guid.NewGuid().ToString();
             chatOptions.ConversationId = currentId;
             chatOptions.AdditionalProperties ??= new();
@@ -76,10 +85,11 @@
             {
                 throw new InvalidOperationException($"No IChatClient registered with the name '{ProcessName}'.");
             }
-            // Kick off the conversation with the initial text
+            messages.Clear();
             var resp = await ChatClient.GetResponseAsync(new List<ChatMessage>(), chatOptions);
             messages.AddMessages(resp);
-        }
+            StateHasChanged();
+            }
     }
 
     public async Task AddUserMessageAsync(ChatMessage userMessage)
