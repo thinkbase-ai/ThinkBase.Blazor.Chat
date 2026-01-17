@@ -2,6 +2,7 @@
 @using Microsoft.Extensions.AI
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.Extensions.DependencyInjection
+@using System.Collections.Concurrent
 @inject IServiceProvider ServiceProvider
 @implements IDisposable
 <div style="width: 100%">
@@ -62,6 +63,9 @@
     private string? _prevIndexName;
     private string? _prevUserId;
 
+    public ConcurrentQueue<string> queue = new();
+
+
 
 
     protected override async Task OnParametersSetAsync()
@@ -88,6 +92,14 @@
             messages.Clear();
             var resp = await ChatClient.GetResponseAsync(new List<ChatMessage>(), chatOptions);
             messages.AddMessages(resp);
+            if(queue.Count > 0)
+            {
+                while(queue.TryDequeue(out var msg))
+                {
+                    var userMessage = new ChatMessage(ChatRole.User, [new TextContent(msg)]);
+                    await AddUserMessageAsync(userMessage);
+                }
+            }
             StateHasChanged();
          }
     }
@@ -143,6 +155,11 @@
         {
             await OnCopy.InvokeAsync(text);
         }
+    }
+
+    public void QueueMessage(string message)
+    {
+        queue.Enqueue(message);
     }
 
     public void Dispose()
