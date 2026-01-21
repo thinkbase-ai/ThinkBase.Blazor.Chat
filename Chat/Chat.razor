@@ -3,8 +3,11 @@
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.Extensions.DependencyInjection
 @using System.Collections.Concurrent
+@using Microsoft.Extensions.Logging
 @inject IServiceProvider ServiceProvider
+@inject ILogger<Chat> Logger
 @implements IDisposable
+
 <div style="width: 100%">
     <CascadingValue Value="@this" IsFixed="true">
         <ChatHeader OnNewChat="@ResetConversationAsync" DebugMode="@debugMode"/>
@@ -92,16 +95,15 @@
             messages.Clear();
             var resp = await ChatClient.GetResponseAsync(new List<ChatMessage>(), chatOptions);
             messages.AddMessages(resp);
-            if(queue.Count > 0)
-            {
-                while(queue.TryDequeue(out var msg))
-                {
-                    var userMessage = new ChatMessage(ChatRole.User, [new TextContent(msg)]);
-                    await AddUserMessageAsync(userMessage);
-                }
-            }
+
             StateHasChanged();
-         }
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        _ = RunOneShotTimerAsync();
     }
 
     public async Task AddUserMessageAsync(ChatMessage userMessage)
@@ -159,8 +161,42 @@
 
     public void QueueMessage(string message)
     {
+        Logger.LogInformation("Queuing message: {Message}", message);
         queue.Enqueue(message);
     }
+
+    private async Task RunOneShotTimerAsync()
+    {
+        try
+        {
+            // Wait 5 seconds before running the task
+            await Task.Delay(TimeSpan.FromSeconds(2));
+
+            // Update UI safely from background thread
+            await InvokeAsync(async () =>
+            {
+                if (queue.Count > 0)
+                {
+                    while (queue.TryDequeue(out var msg))
+                    {
+                        Logger.LogInformation("Processing queued message: {Message}", msg);
+                        var userMessage = new ChatMessage(ChatRole.User, [new TextContent(msg)]);
+                        await AddUserMessageAsync(userMessage);
+                    }
+                }
+                StateHasChanged();
+            });
+        }
+        catch (Exception ex)
+        {
+            await InvokeAsync(() =>
+            {
+                Logger.LogError(ex, "Error in RunOneShotTimerAsync");
+                StateHasChanged();
+            });
+        }
+    }
+
 
     public void Dispose()
         => currentResponseCancellation?.Cancel();
