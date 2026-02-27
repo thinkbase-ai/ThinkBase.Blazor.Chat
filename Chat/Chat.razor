@@ -55,6 +55,12 @@
     [Parameter]
     public string ProcessName { get; set; } = "EditChatClient";
 
+    [Parameter]
+    public string? AssistantName { get; set; }
+
+    [Parameter]
+    public string? AssistantPrompt { get; set; }
+
     private readonly ChatOptions chatOptions = new();
     public readonly List<ChatMessage> messages = new();
     private CancellationTokenSource? currentResponseCancellation;
@@ -87,6 +93,8 @@
             chatOptions.AdditionalProperties["Index"] = IndexId;
             chatOptions.AdditionalProperties["UserId"] = UserId;
             chatOptions.AdditionalProperties["IndexName"] = IndexName;
+            chatOptions.AdditionalProperties["SystemPrompt"] = AssistantPrompt;
+
             ChatClient = ServiceProvider.GetKeyedService<IChatClient>(ProcessName);
             if (ChatClient == null)
             {

@@ -28,7 +28,7 @@ else if (Message.Role == ChatRole.Assistant)
                         <FluentIcon Value="@(new ChatIcons.Assistant())" />
                     </div>
                 </div>
-                <div class="assistant-message-header">Assistant</div>
+                <div class="assistant-message-header">@assistantName</div>
                 <div class="assistant-message-text">
                     <FluentGrid>
                         <FluentGridItem xs="12" sm="6">
@@ -75,6 +75,7 @@ else if (Message.Role == ChatRole.Assistant)
 
     private const string JAVASCRIPT_FILE = "./_content/ThinkBase.Blazor.Chat/Chat/ChatMessageItem.razor.js";
     private string config { get; set; } = string.Empty;
+    private string assistantName { get; set; } = "Assistant";
 
 
     protected override void OnInitialized()
@@ -88,6 +89,12 @@ else if (Message.Role == ChatRole.Assistant)
         {
             ParseCitations(text);
         }
+    }
+
+    protected override void OnParametersSet()
+    {
+        assistantName = chat?.AssistantName ?? "Assistant";
+        base.OnParametersSet();
     }
 
     /// <summary>
