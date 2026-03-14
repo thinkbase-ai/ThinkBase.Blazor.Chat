@@ -47,10 +47,14 @@ jobs:
       if: github.event_name == 'push' && github.ref == 'refs/heads/master' && !contains(github.event.head_commit.message, '[skip ci]')
       shell: bash
       run: |
+        set -euo pipefail
         git config user.name "github-actions[bot]"
         git config user.email "github-actions[bot]@users.noreply.github.com"
+
         git add version.json
-        git commit -m "chore: bump minor version [skip ci]"
+        git commit -m "chore: bump minor version [skip ci]" || echo "No version changes to commit."
+
+        git pull --rebase origin master
         git push
 
         
