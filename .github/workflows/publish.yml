@@ -14,14 +14,46 @@ jobs:
 
     runs-on: windows-latest
 
+    permissions:
+      contents: write
+
+
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+        token: ${{ secrets.GITHUB_TOKEN }}
     - name: Setup .NET
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 9.0.x
+        dotnet-version: 10.0.x
+    - name: Install nbgv
+      if: github.event_name == 'push' && github.ref == 'refs/heads/master' && !contains(github.event.head_commit.message, '[skip ci]')
+      run: dotnet tool install -g nbgv
+
+    - name: Bump minor version
+      if: github.event_name == 'push' && github.ref == 'refs/heads/master' && !contains(github.event.head_commit.message, '[skip ci]')
+      shell: bash
+      run: |
+        CURRENT=$(jq -r '.version' version.json)
+        MAJOR=$(echo "$CURRENT" | cut -d. -f1)
+        MINOR=$(echo "$CURRENT" | cut -d. -f2)
+        NEW_MINOR=$((MINOR + 1))
+        NEW_VERSION="$MAJOR.$NEW_MINOR"
+        nbgv set-version "$NEW_VERSION"
+        echo "Bumped version from $CURRENT to $NEW_VERSION"
+
+    - name: Commit and push version bump
+      if: github.event_name == 'push' && github.ref == 'refs/heads/master' && !contains(github.event.head_commit.message, '[skip ci]')
+      shell: bash
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add version.json
+        git commit -m "chore: bump minor version [skip ci]"
+        git push
+
+        
     - name: Restore dependencies
       run: dotnet restore "${{env.WORKING_DIRECTORY}}/ThinkBase.Blazor.Chat.csproj" --ignore-failed-sources
     - name: Build
