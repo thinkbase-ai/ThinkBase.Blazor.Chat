@@ -65,4 +65,4 @@ jobs:
     - name: pack
       run: dotnet pack "${{env.WORKING_DIRECTORY}}/ThinkBase.Blazor.Chat.csproj"  --no-restore --no-build --configuration Debug --include-symbols --output ${{github.workspace}}\output
     - name: push package
-      run: dotnet nuget push ${{github.workspace}}\output\*.nupkg  -k ${{secrets.NUGET_APIKEY}} -s "https://api.nuget.org/v3/index.json" 
+      run: dotnet nuget push ${{github.workspace}}\output\*.nupkg  -k ${{secrets.NUGET_APIKEY}} -s "https://api.nuget.org/v3/index.json" --skip-duplicate 
